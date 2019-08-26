@@ -141,6 +141,16 @@ func RemoveTagLV(ctx context.Context, vg string, name string, tags []string) (st
 	return string(out), err
 }
 
+// ExtendLV extend lv
+func ExtendLV(ctx context.Context, size string, name string) (string, error) {
+	if size == "" || name == "" {
+		return "", fmt.Errorf("Paramters error: %v, %v", size, name)
+	}
+	cmd := exec.Command("lvextend", "-L", size, name)
+	out, err := cmd.CombinedOutput()
+	return string(out), err
+}
+
 // ListVG lists lvm vg
 func ListVG(ctx context.Context) ([]*parser.VG, error) {
 

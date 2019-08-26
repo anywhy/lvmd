@@ -19,6 +19,7 @@ func NewServer() pb.LVMServer {
 	return Server{}
 }
 
+// ListLV list lv
 func (s Server) ListLV(ctx context.Context, in *pb.ListLVRequest) (*pb.ListLVReply, error) {
 	lvs, err := commands.ListLV(ctx, in.VolumeGroup)
 	if err != nil {
@@ -32,6 +33,7 @@ func (s Server) ListLV(ctx context.Context, in *pb.ListLVRequest) (*pb.ListLVRep
 	return &pb.ListLVReply{Volumes: pblvs}, nil
 }
 
+// CreateLV create lv
 func (s Server) CreateLV(ctx context.Context, in *pb.CreateLVRequest) (*pb.CreateLVReply, error) {
 	log, err := commands.CreateLV(ctx, in.VolumeGroup, in.Name, in.Size, in.Mirrors, in.Tags)
 	if err != nil {
@@ -40,6 +42,7 @@ func (s Server) CreateLV(ctx context.Context, in *pb.CreateLVRequest) (*pb.Creat
 	return &pb.CreateLVReply{CommandOutput: log}, nil
 }
 
+// RemoveLV remove lv
 func (s Server) RemoveLV(ctx context.Context, in *pb.RemoveLVRequest) (*pb.RemoveLVReply, error) {
 	log, err := commands.RemoveLV(ctx, in.VolumeGroup, in.Name)
 	if err != nil {
@@ -48,6 +51,7 @@ func (s Server) RemoveLV(ctx context.Context, in *pb.RemoveLVRequest) (*pb.Remov
 	return &pb.RemoveLVReply{CommandOutput: log}, nil
 }
 
+// CloneLV clone lv
 func (s Server) CloneLV(ctx context.Context, in *pb.CloneLVRequest) (*pb.CloneLVReply, error) {
 	log, err := commands.CloneLV(ctx, in.SourceName, in.DestName)
 	if err != nil {
@@ -56,11 +60,16 @@ func (s Server) CloneLV(ctx context.Context, in *pb.CloneLVRequest) (*pb.CloneLV
 	return &pb.CloneLVReply{CommandOutput: log}, nil
 }
 
+// ExtendLV extend lv
 func (s Server) ExtendLV(ctx context.Context, in *pb.ExtendLVRequest) (*pb.ExtendLVReply, error) {
-
-	return nil, nil
+	log, err := commands.ExtendLV(ctx, in.GetSize(), in.GetName())
+	if err != nil {
+		return nil, grpc.Errorf(codes.Internal, "failed to extend lv: %v\nCommandOutput: %v", err, streamline(log))
+	}
+	return &pb.ExtendLVReply{CommandOutput: log}, nil
 }
 
+// ListVG list vg
 func (s Server) ListVG(ctx context.Context, in *pb.ListVGRequest) (*pb.ListVGReply, error) {
 	vgs, err := commands.ListVG(ctx)
 	if err != nil {
@@ -74,6 +83,7 @@ func (s Server) ListVG(ctx context.Context, in *pb.ListVGRequest) (*pb.ListVGRep
 	return &pb.ListVGReply{VolumeGroups: pbvgs}, nil
 }
 
+// CreateVG create vg
 func (s Server) CreateVG(ctx context.Context, in *pb.CreateVGRequest) (*pb.CreateVGReply, error) {
 	log, err := commands.CreateVG(ctx, in.Name, in.PhysicalVolume, in.Tags)
 	if err != nil {
@@ -82,6 +92,7 @@ func (s Server) CreateVG(ctx context.Context, in *pb.CreateVGRequest) (*pb.Creat
 	return &pb.CreateVGReply{CommandOutput: log}, nil
 }
 
+// ExtendVG extend vg
 func (s Server) ExtendVG(ctx context.Context, in *pb.ExtendVGRequest) (*pb.ExtendVGReply, error) {
 	log, err := commands.ExtendVG(ctx, in.Name, in.PhysicalVolume)
 	if err != nil {
@@ -90,6 +101,7 @@ func (s Server) ExtendVG(ctx context.Context, in *pb.ExtendVGRequest) (*pb.Exten
 	return &pb.ExtendVGReply{CommandOutput: log}, nil
 }
 
+// ReduceVG reduce vg
 func (s Server) ReduceVG(ctx context.Context, in *pb.ExtendVGRequest) (*pb.ExtendVGReply, error) {
 	log, err := commands.ReduceVG(ctx, in.Name, in.PhysicalVolume)
 	if err != nil {
@@ -98,6 +110,7 @@ func (s Server) ReduceVG(ctx context.Context, in *pb.ExtendVGRequest) (*pb.Exten
 	return &pb.ExtendVGReply{CommandOutput: log}, nil
 }
 
+// RemoveVG remove vg
 func (s Server) RemoveVG(ctx context.Context, in *pb.CreateVGRequest) (*pb.RemoveVGReply, error) {
 	log, err := commands.RemoveVG(ctx, in.Name)
 	if err != nil {
@@ -106,6 +119,7 @@ func (s Server) RemoveVG(ctx context.Context, in *pb.CreateVGRequest) (*pb.Remov
 	return &pb.RemoveVGReply{CommandOutput: log}, nil
 }
 
+// AddTagLV add lv tag
 func (s Server) AddTagLV(ctx context.Context, in *pb.AddTagLVRequest) (*pb.AddTagLVReply, error) {
 	log, err := commands.AddTagLV(ctx, in.VolumeGroup, in.Name, in.Tags)
 	if err != nil {
@@ -114,6 +128,7 @@ func (s Server) AddTagLV(ctx context.Context, in *pb.AddTagLVRequest) (*pb.AddTa
 	return &pb.AddTagLVReply{CommandOutput: log}, nil
 }
 
+// RemoveTagLV remove lv tag
 func (s Server) RemoveTagLV(ctx context.Context, in *pb.RemoveTagLVRequest) (*pb.RemoveTagLVReply, error) {
 	log, err := commands.RemoveTagLV(ctx, in.VolumeGroup, in.Name, in.Tags)
 	if err != nil {
@@ -122,6 +137,7 @@ func (s Server) RemoveTagLV(ctx context.Context, in *pb.RemoveTagLVRequest) (*pb
 	return &pb.RemoveTagLVReply{CommandOutput: log}, nil
 }
 
+// CreatePV create pv
 func (s Server) CreatePV(ctx context.Context, in *pb.CreatePVRequest) (*pb.CreatePVReply, error) {
 	log, err := commands.CreatePV(ctx, in.Block)
 	if err != nil {
@@ -130,6 +146,7 @@ func (s Server) CreatePV(ctx context.Context, in *pb.CreatePVRequest) (*pb.Creat
 	return &pb.CreatePVReply{CommandOutput: log}, nil
 }
 
+// RemovePV remove pv
 func (s Server) RemovePV(ctx context.Context, in *pb.RemovePVRequest) (*pb.RemovePVReply, error) {
 	log, err := commands.RemovePV(ctx, in.Block)
 	if err != nil {
@@ -138,6 +155,7 @@ func (s Server) RemovePV(ctx context.Context, in *pb.RemovePVRequest) (*pb.Remov
 	return &pb.RemovePVReply{CommandOutput: log}, nil
 }
 
+// ListPV list pv
 func (s Server) ListPV(ctx context.Context, in *pb.ListPVRequest) (*pb.ListPVReply, error) {
 	pvs, err := commands.ListPV(ctx)
 	if err != nil {
@@ -150,6 +168,7 @@ func (s Server) ListPV(ctx context.Context, in *pb.ListPVRequest) (*pb.ListPVRep
 	return &pb.ListPVReply{Pvinfos: pbpvs}, nil
 }
 
+// Validate validate
 func (s Server) Validate(ctx context.Context, in *pb.ValidateRequest) (*pb.ValidateReply, error) {
 	v, err := commands.Validate(ctx, in.Block)
 	if err != nil {
@@ -158,6 +177,7 @@ func (s Server) Validate(ctx context.Context, in *pb.ValidateRequest) (*pb.Valid
 	return &pb.ValidateReply{Validate: v}, nil
 }
 
+// Destory destory block
 func (s Server) Destory(ctx context.Context, in *pb.DestoryRequest) (*pb.DestoryReply, error) {
 	log, err := commands.Destory(ctx, in.Block)
 	if err != nil {
@@ -166,11 +186,13 @@ func (s Server) Destory(ctx context.Context, in *pb.DestoryRequest) (*pb.Destory
 	return &pb.DestoryReply{CommandOutput: log}, nil
 }
 
+// Match match block
 func (s Server) Match(ctx context.Context, in *pb.MatchRequest) (*pb.MatchReply, error) {
 	log := commands.Match(ctx, in.Block)
 	return &pb.MatchReply{CommandOutput: log}, nil
 }
 
+// GetPVNum get pv number
 func (s Server) GetPVNum(ctx context.Context, in *pb.CreateVGRequest) (*pb.GetPVNumReply, error) {
 	log, err := commands.GetPVNum(ctx, in.Name)
 	if err != nil {
